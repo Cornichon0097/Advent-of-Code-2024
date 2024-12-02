@@ -40,5 +40,8 @@ Session.vim
 # Debug files
 *.dSYM/
 
+# ---> Directories
+build
+
 # Input files
 *.input
