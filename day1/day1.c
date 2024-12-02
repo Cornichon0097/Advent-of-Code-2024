@@ -15,7 +15,6 @@ int parse(FILE *const stream, int **const left, int **const right)
         char buf[BUFSIZ];
         int *l, *r;
         int nb_lines;
-        int i;
 
         for (nb_lines = 0; fgets(buf, BUFSIZ, stream); ++nb_lines)
                 ;
@@ -28,7 +27,7 @@ int parse(FILE *const stream, int **const left, int **const right)
 
         fseek(stream, 0, SEEK_SET);
 
-        for (i = 0; fgets(buf, BUFSIZ, stream); ++i)
+        while (fgets(buf, BUFSIZ, stream))
                 sscanf(buf, "%d %d\n", l++, r++);
 
         return nb_lines;
