@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <aoc/util.h>
+
 #define INSTRUCTIONS "md"
 
 #define MUL "mul("
@@ -11,12 +13,12 @@
 #define DONT "don't"
 
 /**
- * @brief      { function_description }
+ * \brief      Multipliies if the instruction is correct.
  *
- * @param      str     The string
- * @param      result  The result
+ * \param[in]   str     The instruction
+ * \param       result  The result
  *
- * @return     { description_of_the_return_value }
+ * \return     The next instruction.
  */
 char *mul(char *str, long *const result)
 {
@@ -27,11 +29,11 @@ char *mul(char *str, long *const result)
                 return str + 1;
 
         str = str + strlen(MUL);
-        a = strtol(str, &c, 10);
+        a   = strtol(str, &c, 10);
 
         if (*c == ',') {
                 str = c + 1;
-                b = strtol(str, &c, 10);
+                b   = strtol(str, &c, 10);
 
                 if (*c == ')')
                         *result = *result + a * b;
@@ -41,12 +43,14 @@ char *mul(char *str, long *const result)
 }
 
 /**
- * @brief      "Do, or do not, there is no try" - Ydoa
+ * \brief      "Do or do not. There is no try." - Yoda.
  *
- * @param      str       The string
- * @param      multiply  The multiply
+ * \see        'Star Wars Episode V: The Empire Strikes Back'
  *
- * @return     { description_of_the_return_value }
+ * \param[in]  str       The instruction
+ * \param      multiply  The multiply boolean
+ *
+ * \return     The next instruction.
  */
 char *yoda(char *str, int *const multiply)
 {
@@ -60,31 +64,22 @@ char *yoda(char *str, int *const multiply)
 }
 
 /**
- * \brief { function_description }
+ * \brief      Main function.
  *
- * \param[in] argc The count of arguments
- * \param argv The arguments array
+ * \param[in]  argc  The count of arguments
+ * \param[in]  argv  The arguments array
  *
- * \return { description_of_the_return_value }
+ * \return     Exit status.
  */
 int main(const int argc, const char *const argv[])
 {
-        FILE* input;
+        FILE *input;
         char buf[BUFSIZ];
         char *substr;
-        int multiply;
         long result;
+        int multiply;
 
-        if (argc < 2)
-                input = stdin;
-        else
-                input = fopen(argv[1], "r");
-
-        if (input == NULL) {
-                perror("Input stream");
-                fprintf(stderr, "Usage: %s [input]\n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
+        input = input_stream(argc, argv);
 
         result   = 0;
         multiply = 1;
