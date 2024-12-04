@@ -2,25 +2,18 @@
 #include <stdio.h>
 #include <string.h>
 
-/**
- * \brief { function_description }
- *
- * \param a { parameter_description }
- * \param b { parameter_description }
- *
- * \return { description_of_the_return_value }
- */
+#include <aoc/util.h>
+
 #define OPPOSITE_SIGNS(a, b) (((a) ^ (b)) >> 31)
 
 /**
- * \brief Determines if safe.
+ * \brief      Determines whether the specified report is safe.
  *
- * \param report The report
- * \param ptr The pointer
+ * \param[in]  report  The report
  *
- * \return True if safe, False otherwise.
+ * \return     True if the specified report is safe, False otherwise.
  */
-int is_safe(const char *const report, char **const ptr)
+int is_safe(const char *const report)
 {
         char *token;
         int val, prev;
@@ -32,9 +25,6 @@ int is_safe(const char *const report, char **const ptr)
         while ((*token != '\n') && (*token != '\0')) {
                 val = (int) strtol(token, &token, 10);
 
-                if (ptr != NULL)
-                        *ptr = token;
-
                 if ((abs(prev - val) == 0) || (abs(prev - val) > 3))
                         return 0;
 
@@ -43,95 +33,83 @@ int is_safe(const char *const report, char **const ptr)
                 else if (OPPOSITE_SIGNS(delta, prev - val))
                         return 0;
 
-                prev = val;
-
                 for (; *token == ' '; ++token)
                         ;
+
+                prev = val;
         }
 
         return 1;
 }
 
 /**
- * \brief Removes a previous.
+ * \brief      Removes the next element pointed to by token in a report.
  *
- * \param[in] buf The buffer
- * \param token The token
+ * \param      token  The report token
  *
- * \return { description_of_the_return_value }
+ * \return     The next token.
  */
-char *remove_prev(const char *const buf, char *token)
+char *remove_next(char *token)
 {
-        for (; *token == ' '; --token)
+        for (; *token == ' '; ++token)
                 ;
 
-        for (; (token >= buf) && (*token != ' '); --token) {
-                if (*token != '\n')
-                        *token = ' ';
-        }
+        for (; (*token != ' ') && (*token != '\n'); ++token)
+                *token = ' ';
 
         return token;
 }
 
 /**
- * \brief { function_description }
+ * \brief      Determines whether the specified report is safe.
  *
- * \param report The report
- * \param endptr The endptr
+ * The function dampaner() determines whether the specified report is safe,
+ * accordirng to the Dampaner Problem. If removing a single level from an unsafe
+ * report would make it safe, the report instead counts as safe.
  *
- * \return { description_of_the_return_value }
+ * \param[in]  report  The report
+ *
+ * \return     True if the specified report is safe, False otherwise.
  */
-int dampaner(char *const report, char *endptr)
+int dampaner(const char *const report)
 {
         char buf[BUFSIZ];
         char *token;
 
-        strncpy(buf, report, endptr - report);
+        token = strcpy(buf, report);
 
-        for (; endptr >= report; endptr = token) {
-                token = remove_prev(report, endptr);
+        while (*token != '\n') {
+                token = remove_next(token);
 
-                if (is_safe(report, NULL))
+                if (is_safe(buf))
                         return 1;
 
-                strncpy(report, buf, endptr - report);
+                memcpy(buf, report, token - buf);
         }
 
         return 0;
 }
 
 /**
- * \brief { function_description }
+ * \brief      Main function.
  *
- * \param[in] argc The count of arguments
- * \param argv The arguments array
+ * \param[in]  argc  The count of arguments
+ * \param[in]  argv  The arguments array
  *
- * \return { description_of_the_return_value }
+ * \return     Exit status.
  */
 int main(const int argc, const char *const argv[])
 {
-        FILE* input;
+        FILE *input;
         char buf[BUFSIZ];
-        char *token;
         int count;
 
-        if (argc < 2)
-                input = stdin;
-        else
-                input = fopen(argv[1], "r");
-
-        if (input == NULL) {
-                perror("Input stream");
-                fprintf(stderr, "Usage: %s [input]\n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
-
+        input = input_stream(argc, argv);
         count = 0;
 
         while (fgets(buf, BUFSIZ, input)) {
-                if (is_safe(buf, &token))
-                        ++count;
-                else if (dampaner(buf, token))
+                /* if (is_safe(buf)) */
+                if (dampaner(buf))
                         ++count;
         }
 
