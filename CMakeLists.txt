@@ -13,8 +13,16 @@ target_compile_options(compiler_flags INTERFACE
     "$<${gcc_like_c}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wwrite-strings;-Wstrict-prototypes;-Wunreachable-code;-Werror;-g>>"
 )
 
-add_executable(day1.out day1/day1.c)
-target_link_libraries(day1.out PUBLIC compiler_flags)
+add_subdirectory(libaoc)
 
-add_executable(day2.out day2/day2.c)
-target_link_libraries(day2.out PUBLIC compiler_flags)
+add_executable(day1 day1/day1.c)
+target_link_libraries(day1 PUBLIC libaoc compiler_flags)
+
+add_executable(day2 day2/day2.c)
+target_link_libraries(day2 PUBLIC libaoc compiler_flags)
+
+add_executable(day3 day3/day3.c)
+target_link_libraries(day3 PUBLIC libaoc compiler_flags)
+
+add_executable(day4 day4/day4.c)
+target_link_libraries(day4 PUBLIC libaoc compiler_flags)
