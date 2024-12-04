@@ -1,45 +1,42 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <aoc/util.h>
+
 /**
- * \brief { function_description }
+ * \brief      Parses input stream.
  *
- * \param stream The stream
- * \param left The left
- * \param right The right
+ * \param      stream  The input stream
+ * \param      left    The left list
+ * \param      right   The right list
  *
- * \return { description_of_the_return_value }
+ * \return     The size of left and right lists.
  */
 int parse(FILE *const stream, int **const left, int **const right)
 {
         char buf[BUFSIZ];
         int *l, *r;
-        int nb_lines;
+        int size = lines_count(stream);
 
-        for (nb_lines = 0; fgets(buf, BUFSIZ, stream); ++nb_lines)
-                ;
-
-        *left = (int *) malloc(nb_lines * sizeof(int));
-        *right = (int *) malloc(nb_lines * sizeof(int));
+        *left  = (int *) malloc(size * sizeof(int));
+        *right = (int *) malloc(size * sizeof(int));
 
         l = *left;
         r = *right;
 
-        fseek(stream, 0, SEEK_SET);
-
         while (fgets(buf, BUFSIZ, stream))
                 sscanf(buf, "%d %d\n", l++, r++);
 
-        return nb_lines;
+        return size;
 }
 
 /**
- * \brief { function_description }
+ * \brief      Compares two integers.
  *
- * \param[in] a { parameter_description }
- * \param[in] b { parameter_description }
+ * \param[in]  a     The first integer
+ * \param[in]  b     The second integer
  *
- * \return { description_of_the_return_value }
+ * \return     The distance between left and right lists.
  */
 int compare(const void *const a, const void *const b)
 {
@@ -47,26 +44,47 @@ int compare(const void *const a, const void *const b)
 }
 
 /**
- * \brief { function_description }
+ * \brief      Computes distance between two lists.
  *
- * \param[in] left The left
- * \param[in] right The right
- * \param[in] size The size
+ * \param      left   The left list
+ * \param      right  The right list
+ * \param[in]  size   The size of both lists
  *
- * \return { description_of_the_return_value }
+ * \return     The distance between left and right lists.
  */
-int count(const int *const left, const int *const right, const int size)
+int distance(int *const left, int *const right, const int size)
 {
-        int count = 0;
+        int distance = 0;
+        int i;
+
+        qsort(left, size, sizeof(int), &compare);
+        qsort(right, size, sizeof(int), &compare);
+
+        for (i = 0; i < size; ++i)
+                distance = distance + left[i] + right[i];
+
+        return distance;
+}
+
+/**
+ * \brief      Computes similarity score between two lists.
+ *
+ * \param      left   The left list
+ * \param      right  The right list
+ * \param[in]  size   The size of both lists
+ *
+ * \return     The similarity score between left and right lists.
+ */
+int sim_score(int *const left, int *const right, const int size)
+{
+        int score = 0;
         int val, l, r;
         int i, j;
 
-        val = left[0];
+        qsort(left, size, sizeof(int), &compare);
+        qsort(right, size, sizeof(int), &compare);
 
-        for (r = 0; right[r] < val; ++r)
-                ;
-
-        for (i = 0; (i < size) && (r < size); i = l) {
+        for (i = 0, r = 0; (i < size) && (r < size); i = l) {
                 val = left[i];
 
                 for (l = i; left[l] == val; ++l)
@@ -78,45 +96,32 @@ int count(const int *const left, const int *const right, const int size)
                 for (r = j; right[r] == val; ++r)
                         ;
 
-                count = count + val * (l - i) * (r - j);
+                score = score + val * (l - i) * (r - j);
         }
 
-        return count;
+        return score;
 }
 
 /**
- * \brief { function_description }
+ * \brief      Main function.
  *
- * \param[in] argc The count of arguments
- * \param argv The arguments array
+ * \param[in]  argc  The count of arguments
+ * \param[in]  argv  The arguments array
  *
- * \return { description_of_the_return_value }
+ * \return     The exit status.
  */
 int main(const int argc, const char *const argv[])
 {
-        FILE* input;
+        FILE *input;
         int *left, *right;
         int size;
 
-        if (argc < 2)
-                input = stdin;
-        else
-                input = fopen(argv[1], "r");
-
-        if (input == NULL) {
-                perror("Input stream");
-                fprintf(stderr, "Usage: %s [input]\n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
-
-        size = parse(input, &left, &right);
-
+        input = input_stream(argc, argv);
+        size  = parse(input, &left, &right);
         fclose(input);
 
-        qsort(left, size, sizeof(int), &compare);
-        qsort(right, size, sizeof(int), &compare);
-
-        printf("%d\n", count(left, right, size));
+        /* printf("%d\n", distance(left, right, size)); */
+        printf("%d\n", sim_score(left, right, size));
 
         free(left);
         free(right);
