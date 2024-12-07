@@ -26,3 +26,9 @@ target_link_libraries(day3 PUBLIC libaoc compiler_flags)
 
 add_executable(day4 day4/day4.c)
 target_link_libraries(day4 PUBLIC libaoc compiler_flags)
+
+add_executable(day5 day5/day5.c)
+target_link_libraries(day5 PUBLIC libaoc compiler_flags)
+
+# add_executable(day6 day6/day6.c)
+# target_link_libraries(day6 PUBLIC libaoc compiler_flags)
